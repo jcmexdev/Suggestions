@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fetch request</title>
+  </head>
+  <body>
+    <h1>Find your locality</h1>
+    <div class="container">
+      <input
+        type="text"
+        class="search"
+        name="search"
+        id="search"
+        placeholder="Type something to get suggestions"
+      />
+      <ul class="suggestions"></ul>
+    </div>
+    <script>
+      const localities = [];
+
+      fetch(
+        'https://raw.githubusercontent.com/martinciscap/json-estados-municipios-mexico/master/estados-municipios.json'
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          let keys = Object.keys(data);
+          let newData = [];
+          keys.forEach((key) => {
+            data[key].forEach((item) => {
+              localities.push({
+                municipality: key,
+                name: item,
+              });
+            });
+          });
+        });
+
+      function filterSuggestions(match) {
+        if (match === '') {
+          suggestions.innerHTML = '';
+          return;
+        }
+        const filter = localities
+          .filter(({ name }) =>
+            name.toLowerCase().includes(match.toLowerCase())
+          )
+          .map((item) => `<li>${item.municipality}-${item.name}</li>`)
+          .join(' ');
+        suggestions.innerHTML = filter;
+      }
+
+      function handleSuggestions() {
+        filterSuggestions(this.value);
+      }
+
+      const search = document.querySelector('input.search');
+      search.addEventListener('keyup', handleSuggestions);
+
+      const suggestions = document.querySelector('ul.suggestions');
+    </script>
+  </body>
+</html>
